@@ -1,0 +1,67 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "schools": {
+      ".read": "auth != null",
+      "$schoolId": {
+        ".write": "auth != null && auth.token.email === data.child('email').val()",
+        "candidates": {
+          ".write": "auth != null && auth.token.email === root.child('schools').child($schoolId).child('email').val()"
+        }
+      }
+    },
+    "messages": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": "timestamp",
+      "$messageId": {
+        ".validate": "newData.hasChildren(['schoolId', 'schoolName', 'content', 'timestamp'])",
+        "schoolId": {
+          ".validate": "newData.isString()"
+        },
+        "schoolName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "content": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 500"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        }
+      }
+    },
+    "announcements": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$announcementId": {
+        ".validate": "newData.hasChildren(['content', 'type', 'createdAt'])",
+        "content": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+        },
+        "type": {
+          ".validate": "newData.isString() && newData.val().matches(/^(task|event|announcement)$/)"
+        },
+        "date": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/))"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        }
+      }
+    },
+    "tasks": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$taskId": {
+        ".validate": "newData.hasChildren(['content', 'createdAt'])",
+        "content": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 500"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        }
+      }
+    }
+  }
+}
